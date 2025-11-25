@@ -1,0 +1,161 @@
+/* Paleta de Colores - Colibri Arroyo Seco */
+:root {
+  /* Colores principales */
+  --color-bg-primary: #0B132B;      /* Fondo principal - Azul oscuro */
+  --color-bg-secondary: #1C2541;    /* Contenedores - Azul profundo */
+  --color-btn-primary: #3A506B;     /* Botón principal */
+  --color-hover: #5BC0BE;           /* Hover - Turquesa dinámico */
+  --color-text: #F4D03F;            /* Texto - Dorado cálido */
+  
+  /* Colores complementarios */
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-danger: #dc3545;
+  --color-info: #17a2b8;
+  
+  /* Escala de grises */
+  --color-text-light: #E0E0E0;      /* Texto secundario */
+  --color-text-muted: #999999;      /* Texto deshabilitado */
+  --color-border: #2A3E5F;          /* Bordes */
+  
+  /* Espaciado */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  
+  /* Tipografía */
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  
+  /* Transiciones */
+  --transition: all 0.3s ease;
+}
+
+/* Reset global */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-light);
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  line-height: 1.6;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-btn-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-hover);
+}
+
+/* Estilos base de etiquetas */
+a {
+  color: var(--color-hover);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--color-text);
+  text-decoration: underline;
+}
+
+button {
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+  border-radius: 4px;
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+input, textarea, select {
+  font-family: var(--font-family);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-light);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  transition: var(--transition);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--color-hover);
+  box-shadow: 0 0 8px rgba(91, 192, 190, 0.3);
+}
+
+/* Utilidades */
+.text-primary {
+  color: var(--color-text);
+}
+
+.text-secondary {
+  color: var(--color-text-light);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.bg-primary {
+  background-color: var(--color-bg-primary);
+}
+
+.bg-secondary {
+  background-color: var(--color-bg-secondary);
+}
+
+.btn-primary {
+  background-color: var(--color-btn-primary);
+  color: var(--color-text);
+  border: 2px solid var(--color-btn-primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-hover);
+  border-color: var(--color-hover);
+  color: var(--color-bg-primary);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.border-bottom {
+  border-bottom: 1px solid var(--color-border);
+}

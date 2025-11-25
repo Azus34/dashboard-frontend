@@ -1,25 +1,45 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Colibri",
+  "name": "Colibri Arroyo Seco Dashboard",
+  "description": "Dashboard de gestión de viajes - Colibri Arroyo Seco",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "colibri.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
-      "src": "logo192.png",
+      "src": "colibri.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "512x512",
+      "purpose": "any"
     },
     {
-      "src": "logo512.png",
+      "src": "colibri.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "192x192",
+      "purpose": "maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "orientation": "portrait-primary",
+  "theme_color": "#0B132B",
+  "background_color": "#0B132B",
+  "screenshots": [
+    {
+      "src": "colibri.png",
+      "type": "image/png",
+      "sizes": "540x720",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "colibri.png",
+      "type": "image/png",
+      "sizes": "1280x720",
+      "form_factor": "wide"
+    }
+  ]
 }

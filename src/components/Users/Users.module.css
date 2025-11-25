@@ -1,0 +1,155 @@
+.container {
+  width: 100%;
+  padding: 1rem;
+  background: var(--color-bg-primary);
+  min-height: calc(100vh - 80px);
+}
+
+.container h2 {
+  color: var(--color-text);
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.tabs button {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--color-text-light);
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.tabs button:hover {
+  color: var(--color-hover);
+}
+
+.tabs button.activeTab {
+  color: var(--color-hover);
+  border-bottom-color: var(--color-hover);
+}
+
+.content {
+  background: var(--color-bg-secondary);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: var(--color-btn-primary);
+}
+
+.table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-text);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-light);
+}
+
+.table tbody tr:hover {
+  background: rgba(91, 192, 190, 0.1);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge.active {
+  background: rgba(40, 167, 69, 0.2);
+  color: #7ee8b8;
+}
+
+.badge.inactive {
+  background: rgba(220, 53, 69, 0.2);
+  color: #ff6b9d;
+}
+
+.badge.pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #f4d03f;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 80px);
+  font-size: 1.2rem;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0.5rem;
+  }
+
+  .container h2 {
+    margin-bottom: 1rem;
+  }
+
+  .tabs {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .tabs button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    min-height: auto;
+    padding: 0.25rem;
+  }
+
+  .tabs button {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.75rem;
+  }
+
+  .badge {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+  }
+}
