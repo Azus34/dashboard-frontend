@@ -10,6 +10,7 @@ HighchartsMore(Highcharts);
 
 export function Analytics() {
   const [earningsData, setEarningsData] = useState([]);
+  const [earningsTotal, setEarningsTotal] = useState({ totalEarnings: 0, totalTrips: 0 });
   const [financesStats, setFinancesStats] = useState(null);
   const [routesStats, setRoutesStats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,12 +19,14 @@ export function Analytics() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [earnings, finances, routes] = await Promise.all([
+        const [earningsPeriod, earningsTot, finances, routes] = await Promise.all([
           earningsAPI.getByPeriod(),
+          earningsAPI.getTotal(),
           financesAPI.getStats(),
           routesAPI.getAll(),
         ]);
-        setEarningsData(earnings.data || []);
+        setEarningsData(earningsPeriod.data || []);
+        setEarningsTotal(earningsTot.data || { totalEarnings: 0, totalTrips: 0 });
         setFinancesStats(finances.data || {});
         setRoutesStats(routes.data || []);
       } catch (error) {
@@ -51,18 +54,20 @@ export function Analytics() {
   const safeEarningsData = earningsData && Array.isArray(earningsData) ? earningsData : [];
   const chartEarningsData = safeEarningsData.slice(0, 15).map((e) => parseFloat((e.earnings || 0).toFixed(2)));
   const chartCategoriesData = safeEarningsData.slice(0, 15).map((e) => new Date(e.date).toLocaleDateString());
-  const chartTransactionsData = safeEarningsData.slice(0, 15).map((e) => e.transactions || 0);
+  const chartTripsData = safeEarningsData.slice(0, 15).map((e) => e.trips || 0);
 
   // Gráfica de ganancias por período - Área
   const earningsChartOptions = {
     chart: { type: 'area', backgroundColor: 'transparent', height: 350 },
-    title: { text: 'Ganancias Diarias (15% Comisión)' },
+    title: { text: 'Ganancias Diarias (15% Comisión)', style: { color: 'white' } },
     xAxis: {
       categories: chartCategoriesData.length > 0 ? chartCategoriesData : ['Sin datos'],
       crosshair: true,
+      labels: { style: { color: 'white' } }
     },
     yAxis: { 
-      title: { text: 'Monto ($)' },
+      title: { text: 'Monto ($)', style: { color: 'white' } },
+      labels: { style: { color: 'white' } },
       plotLines: [{ value: 0, width: 1, color: '#808080' }],
     },
     tooltip: { 
@@ -71,6 +76,7 @@ export function Analytics() {
       },
       shared: true,
     },
+    legend: { itemStyle: { color: 'white' } },
     plotOptions: {
       area: {
         stacking: 'normal',
@@ -95,18 +101,23 @@ export function Analytics() {
   // Gráfica de transacciones por día - Columnas
   const transactionsByDayOptions = {
     chart: { type: 'column', backgroundColor: 'transparent', height: 350 },
-    title: { text: 'Transacciones por Día' },
+    title: { text: 'Viajes Completados por Día', style: { color: 'white' } },
     xAxis: {
       categories: chartCategoriesData.length > 0 ? chartCategoriesData : ['Sin datos'],
+      labels: { style: { color: 'white' } }
     },
-    yAxis: { title: { text: 'Cantidad' } },
+    yAxis: { 
+      title: { text: 'Cantidad', style: { color: 'white' } },
+      labels: { style: { color: 'white' } }
+    },
+    legend: { itemStyle: { color: 'white' } },
     plotOptions: {
       column: { dataLabels: { enabled: true } },
     },
     series: [
       {
-        name: 'Transacciones',
-        data: chartTransactionsData.length > 0 ? chartTransactionsData : [0],
+        name: 'Viajes',
+        data: chartTripsData.length > 0 ? chartTripsData : [0],
         color: '#007bff',
       },
     ],
@@ -118,11 +129,16 @@ export function Analytics() {
   
   const financesChartOptions = {
     chart: { type: 'bar', backgroundColor: 'transparent', height: 300 },
-    title: { text: 'Recargas vs Retiros' },
+    title: { text: 'Recargas vs Retiros', style: { color: 'white' } },
     xAxis: {
       categories: ['Recargas', 'Retiros'],
+      labels: { style: { color: 'white' } }
     },
-    yAxis: { title: { text: 'Monto ($)' } },
+    yAxis: { 
+      title: { text: 'Monto ($)', style: { color: 'white' } },
+      labels: { style: { color: 'white' } }
+    },
+    legend: { itemStyle: { color: 'white' } },
     plotOptions: { series: { dataLabels: { enabled: true } } },
     series: [
       {
@@ -140,12 +156,13 @@ export function Analytics() {
   
   const transactionChartOptions = {
     chart: { type: 'pie', backgroundColor: 'transparent', height: 350 },
-    title: { text: 'Distribución de Transacciones' },
+    title: { text: 'Distribución de Transacciones', style: { color: 'white' } },
     tooltip: { 
       formatter: function() {
         return '<b>' + this.point.name + '</b>: ' + this.y + ' (' + this.percentage.toFixed(1) + '%)';
       }
     },
+    legend: { itemStyle: { color: 'white' } },
     plotOptions: {
       pie: {
         allowPointSelect: true,
@@ -154,7 +171,8 @@ export function Analytics() {
           enabled: true,
           formatter: function() {
             return '<b>' + this.point.name + '</b>: ' + this.percentage.toFixed(1) + '%';
-          }
+          },
+          style: { color: 'white' }
         },
         showInLegend: true,
       },
@@ -182,12 +200,13 @@ export function Analytics() {
   // Gráfica de estado de viajes - Pie simple (sin doughnut)
   const routeStatusOptions = {
     chart: { type: 'pie', backgroundColor: 'transparent', height: 350 },
-    title: { text: 'Estado de Viajes' },
+    title: { text: 'Estado de Viajes', style: { color: 'white' } },
     tooltip: { 
       formatter: function() {
         return '<b>' + this.point.name + '</b>: ' + this.y;
       }
     },
+    legend: { itemStyle: { color: 'white' } },
     plotOptions: {
       pie: {
         allowPointSelect: true,
@@ -196,7 +215,8 @@ export function Analytics() {
           enabled: true,
           formatter: function() {
             return '<b>' + this.point.name + '</b>: ' + this.y;
-          }
+          },
+          style: { color: 'white' }
         },
       },
     },
@@ -242,8 +262,8 @@ export function Analytics() {
         </div>
         <div className={styles.statCard}>
           <h4>Ganancias (15%)</h4>
-          <p className={styles.amount}>${(((safFinancesStats.total_recharges || 0) * 0.15) / 100).toFixed(2)}</p>
-          <span className={styles.count}>Comisión acumulada</span>
+          <p className={styles.amount}>${(earningsTotal.totalEarnings || 0).toFixed(2)}</p>
+          <span className={styles.count}>{earningsTotal.totalTrips || 0} viajes completados</span>
         </div>
         <div className={styles.statCard}>
           <h4>Total Viajes</h4>
@@ -258,7 +278,7 @@ export function Analytics() {
             <HighchartsReact highcharts={Highcharts} options={earningsChartOptions} />
           </div>
         )}
-        {chartTransactionsData.length > 0 && (
+        {chartTripsData.length > 0 && (
           <div className={styles.chartContainer}>
             <HighchartsReact highcharts={Highcharts} options={transactionsByDayOptions} />
           </div>

@@ -29,7 +29,7 @@
 
 .statCard h4 {
   margin: 0 0 0.5rem 0;
-  color: var(--color-text-light);
+  color: white;
   font-size: 0.9rem;
   font-weight: 600;
 }
@@ -43,7 +43,7 @@
 
 .statCard .count {
   display: block;
-  color: var(--color-text-muted);
+  color: white;
   font-size: 0.8rem;
   margin-top: 0.5rem;
 }

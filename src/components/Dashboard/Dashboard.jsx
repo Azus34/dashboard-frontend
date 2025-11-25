@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { transactionsAPI, financesAPI, routesAPI, usersAPI, analyticsAPI } from '../../services/api';
+import { transactionsAPI, financesAPI, routesAPI, usersAPI, analyticsAPI, earningsAPI } from '../../services/api';
 import styles from './Dashboard.module.css';
 
 export function Dashboard() {
@@ -12,7 +12,7 @@ export function Dashboard() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [transactions, finances, routes, drivers, customers, dailyActive, retentionData] = await Promise.all([
+        const [transactions, finances, routes, drivers, customers, dailyActive, retentionData, earnings] = await Promise.all([
           transactionsAPI.getAll(),
           financesAPI.getStats(),
           routesAPI.getAll(),
@@ -20,6 +20,7 @@ export function Dashboard() {
           usersAPI.getCustomers(),
           analyticsAPI.getDailyActiveUsers(),
           analyticsAPI.getRetention(),
+          earningsAPI.getTotal(),
         ]);
 
         // Obtener usuarios activos hoy
@@ -34,7 +35,7 @@ export function Dashboard() {
           totalRoutes: routes.data?.length || 0,
           totalDrivers: drivers.data?.length || 0,
           totalCustomers: customers.data?.length || 0,
-          earnings: ((finances.data?.total_recharges || 0) * 0.15 / 100).toFixed(2),
+          earnings: (earnings.data?.totalEarnings || 0).toFixed(2),
           dailyActiveUsers: todayActive?.active_users || 0,
         });
 
