@@ -207,6 +207,31 @@ Pregúntame sobre ganancias, crecimiento, expansión o tecnología`;
 
   useEffect(() => {
     fetchBusinessData();
+    
+    // Mensaje de bienvenida automático
+    const welcomeMessage = async () => {
+      const data = await fetchBusinessData();
+      const welcome = {
+        role: 'assistant',
+        content: `¡Hola! Soy tu Asistente Estratégico de Colibrí Arroyo Seco.
+
+**Estado actual de tu negocio:**
+• 📊 ${data.totalReservations} reservas totales
+• ✅ ${data.completedTrips} viajes completados
+• ⏳ ${data.pendingReservations} pendientes
+• 💰 Ingresos: $${data.totalRevenue.toFixed(2)} MXN
+
+¿En qué puedo ayudarte hoy? Pregúntame sobre:
+• Ganancias y finanzas
+• Estrategias de crecimiento
+• Plan de expansión
+• Innovaciones tecnológicas`,
+        timestamp: new Date()
+      };
+      setMessages([welcome]);
+    };
+    
+    welcomeMessage();
   }, []);
 
   return (
@@ -218,14 +243,6 @@ Pregúntame sobre ganancias, crecimiento, expansión o tecnología`;
 
       <div className={styles.chatContainer}>
         <div className={styles.messages}>
-          {messages.length === 0 && (
-            <div className={styles.welcomeMessage}>
-              <strong>Asistente IA</strong>
-              <br />
-              ¡Hola! Pregúntame sobre ganancias, crecimiento, expansión o tecnología
-            </div>
-          )}
-
           {messages.map((msg, i) => (
             <div
               key={i}

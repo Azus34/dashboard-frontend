@@ -17,8 +17,32 @@ export function Map() {
   });
 
 const originIcon = createIcon('▲', 'origin');
-const stopIcon   = createIcon('◆', 'stop');
 const destIcon   = createIcon('▼', 'dest');
+
+// Función para obtener color de origen (variedad de colores)
+const getOriginColor = (routeIndex) => {
+  const colors = ['#4caf50', '#2196f3', '#ff5722', '#9c27b0', '#ff9800', '#795548', '#607d8b', '#e91e63'];
+  return colors[routeIndex % colors.length];
+};
+
+// Función para obtener color de destino (variedad de colores)
+const getDestColor = (routeIndex) => {
+  const colors = ['#f44336', '#3f51b5', '#009688', '#ffeb3b', '#9e9e9e', '#673ab7', '#00bcd4', '#8bc34a'];
+  return colors[routeIndex % colors.length];
+};
+
+// Colores para paradas (variedad de colores)
+const stopColors = ['#9c27b0', '#ff9800', '#e91e63', '#00bcd4', '#cddc39', '#3f51b5', '#009688', '#795548'];
+const createStopIcon = (stopNumber) => {
+  const colorIndex = (stopNumber - 1) % stopColors.length;
+  const color = ['purple', 'orange', 'pink', 'cyan', 'lime', 'indigo', 'teal', 'brown'][colorIndex];
+  return createIcon(`${stopNumber}`, `stop-${color}`);
+};
+
+// Función para obtener color de parada por número
+const getStopColor = (stopNumber) => {
+  return stopColors[(stopNumber - 1) % stopColors.length];
+};
 
   const [routes, setRoutes] = useState([]);
   const [allRoutes, setAllRoutes] = useState([]);
@@ -48,10 +72,19 @@ const destIcon   = createIcon('▼', 'dest');
         res.data.map(async (route) => {
           // Obtener nombre del lugar para origen
           const originName = await getLocationName(route.origin.coordinates);
-          
+
           // Obtener nombre del lugar para destino
           const destName = await getLocationName(route.destination.coordinates);
-          
+
+          // Obtener nombres para las paradas
+          const stopsWithNames = await Promise.all(
+            (route.stops || []).map(async (stop, index) => ({
+              ...stop,
+              name: await getLocationName(stop.coordinates),
+              stopNumber: index + 1
+            }))
+          );
+
           // Obtener horario de pickup
           const schedule = await getRouteSchedule(route);
           
@@ -70,6 +103,7 @@ const destIcon   = createIcon('▼', 'dest');
             status: updatedStatus,
             originName,
             destName,
+            stops: stopsWithNames,
             schedule
           };
         })
@@ -211,7 +245,7 @@ const destIcon   = createIcon('▼', 'dest');
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {routes.map(route => {
+          {routes.map((route, routeIndex) => {
             const path = getPath(route);
             const color = {
               available: '#28a745',
@@ -219,6 +253,10 @@ const destIcon   = createIcon('▼', 'dest');
               completed: '#007bff',
               cancelled: '#dc3545'
             }[route.status] || '#6c757d';
+
+            // Crear iconos únicos para esta ruta
+            const originIcon = createIcon('▲', `origin-${routeIndex}`);
+            const destIcon = createIcon('▼', `dest-${routeIndex}`);
 
             return (
               <React.Fragment key={route._id}>
@@ -236,7 +274,7 @@ const destIcon   = createIcon('▼', 'dest');
                   position={[route.origin.coordinates[1], route.origin.coordinates[0]]}
                   onClick={() => setSelectedRoute(route)}
                 >
-                  <Tooltip direction="bottom" offset={[0, 20]}>
+                  <Tooltip direction="bottom" offset={[0, 20]} permanent>
                     <div>
                       <strong>Origen:</strong> {route.originName || 'Cargando...'}<br/>
                       <small>({route.origin.coordinates[1].toFixed(4)}, {route.origin.coordinates[0].toFixed(4)})</small>
@@ -250,12 +288,15 @@ const destIcon   = createIcon('▼', 'dest');
                 {route.stops?.map((s, i) => (
                   <Marker
                     key={i}
-                    icon={stopIcon}
+                    icon={createStopIcon(s.stopNumber)}
                     position={[s.coordinates[1], s.coordinates[0]]}
                     onClick={() => setSelectedRoute(route)}
                   >
-                    <Tooltip direction="bottom" offset={[0, 20]}>
-                      Parada {i + 1}: ({s.coordinates[1].toFixed(4)}, {s.coordinates[0].toFixed(4)})
+                    <Tooltip direction="bottom" offset={[0, 20]} permanent>
+                      <div>
+                        <strong>Parada {s.stopNumber}:</strong> {s.name || 'Cargando...'}<br/>
+                        <small>({s.coordinates[1].toFixed(4)}, {s.coordinates[0].toFixed(4)})</small>
+                      </div>
                     </Tooltip>
                   </Marker>
                 ))}
@@ -265,7 +306,7 @@ const destIcon   = createIcon('▼', 'dest');
                   position={[route.destination.coordinates[1], route.destination.coordinates[0]]}
                   onClick={() => setSelectedRoute(route)}
                 >
-                  <Tooltip direction="bottom" offset={[0, 20]}>
+                  <Tooltip direction="bottom" offset={[0, 20]} permanent>
                     <div>
                       <strong>Destino:</strong> {route.destName || 'Cargando...'}<br/>
                       <small>({route.destination.coordinates[1].toFixed(4)}, {route.destination.coordinates[0].toFixed(4)})</small>
@@ -316,30 +357,38 @@ const destIcon   = createIcon('▼', 'dest');
             <div className={styles.routePath}>
               <h4>Ruta</h4>
               <div className={styles.pathItems}>
-                <div className={styles.pathItem}>
-                  <span className={styles.pathMarker} style={{ backgroundColor: '#28a745' }}>●</span>
-                  <span>
-                    <strong>Origen:</strong> {selectedRoute.originName || 'Cargando...'}<br/>
-                    <small>({selectedRoute.origin.coordinates[1].toFixed(4)}, {selectedRoute.origin.coordinates[0].toFixed(4)})</small>
-                  </span>
-                </div>
+                {(() => {
+                  const selectedRouteIndex = routes.findIndex(r => r._id === selectedRoute._id);
+                  return (
+                    <>
+                      <div className={styles.pathItem}>
+                        <span className={styles.pathMarker} style={{ backgroundColor: getOriginColor(selectedRouteIndex) }}>●</span>
+                        <span>
+                          <strong>Origen:</strong> {selectedRoute.originName || 'Cargando...'}<br/>
+                          <small>({selectedRoute.origin.coordinates[1].toFixed(4)}, {selectedRoute.origin.coordinates[0].toFixed(4)})</small>
+                        </span>
+                      </div>
 
-                {selectedRoute.stops?.map((s, i) => (
-                  <div key={i} className={styles.pathItem}>
-                    <span className={styles.pathMarker} style={{ backgroundColor: '#ffc107' }}>●</span>
-                    <span>
-                      Parada {i + 1}: ({s.coordinates[1].toFixed(4)}, {s.coordinates[0].toFixed(4)})
-                    </span>
-                  </div>
-                ))}
+                      {selectedRoute.stops?.map((s, i) => (
+                        <div key={i} className={styles.pathItem}>
+                          <span className={styles.pathMarker} style={{ backgroundColor: getStopColor(s.stopNumber) }}>{s.stopNumber}</span>
+                          <span>
+                            <strong>Parada {s.stopNumber}:</strong> {s.name || 'Cargando...'}<br/>
+                            <small>({s.coordinates[1].toFixed(4)}, {s.coordinates[0].toFixed(4)})</small>
+                          </span>
+                        </div>
+                      ))}
 
-                <div className={styles.pathItem}>
-                  <span className={styles.pathMarker} style={{ backgroundColor: '#dc3545' }}>●</span>
-                  <span>
-                    <strong>Destino:</strong> {selectedRoute.destName || 'Cargando...'}<br/>
-                    <small>({selectedRoute.destination.coordinates[1].toFixed(4)}, {selectedRoute.destination.coordinates[0].toFixed(4)})</small>
-                  </span>
-                </div>
+                      <div className={styles.pathItem}>
+                        <span className={styles.pathMarker} style={{ backgroundColor: getDestColor(selectedRouteIndex) }}>●</span>
+                        <span>
+                          <strong>Destino:</strong> {selectedRoute.destName || 'Cargando...'}<br/>
+                          <small>({selectedRoute.destination.coordinates[1].toFixed(4)}, {selectedRoute.destination.coordinates[0].toFixed(4)})</small>
+                        </span>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
 
