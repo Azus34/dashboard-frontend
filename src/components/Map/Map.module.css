@@ -88,3 +88,81 @@
 
 /* keyframes, sidebarHeader, closeBtn, routeDetails, detailItem, status classes, routePath, responsiveness... */
 /* ...pega aquí el resto tal como lo tenías, sin modificaciones excepto si quieres ajustar tamaños. */
+
+.filters {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(42, 62, 95, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 15px;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.filters h3 {
+  margin: 0 0 10px 0;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.filterOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filterOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filterOption input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.filterLabel {
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.filterLabel.available {
+  background-color: rgba(40, 167, 69, 0.2);
+  border: 1px solid #28a745;
+}
+
+.filterLabel.in_progress {
+  background-color: rgba(255, 193, 7, 0.2);
+  border: 1px solid #ffc107;
+  color: #333;
+}
+
+.filterLabel.completed {
+  background-color: rgba(0, 123, 255, 0.2);
+  border: 1px solid #007bff;
+}
+
+.filterLabel.cancelled {
+  background-color: rgba(220, 53, 69, 0.2);
+  border: 1px solid #dc3545;
+}
+
+.filterOption input[type="checkbox"]:checked + .filterLabel {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.filterOption input[type="checkbox"]:not(:checked) + .filterLabel {
+  opacity: 0.6;
+}

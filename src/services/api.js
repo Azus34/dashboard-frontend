@@ -41,9 +41,18 @@ export const usersAPI = {
   getCustomer: (id) => api.get(`/users/customers/${id}`),
 };
 
+export const reservationsAPI = {
+  getAll: () => api.get('/reservations'),
+  getByRoute: (routeId) => api.get(`/reservations/route/${routeId}`),
+};
+
 export const analyticsAPI = {
   getDailyActiveUsers: () => api.get('/analytics/daily-active-users'),
   getRetention: () => api.get('/analytics/retention'),
+};
+
+export const aiAPI = {
+  query: (data) => api.post('/ai/query', data),
 };
 
 export default api;

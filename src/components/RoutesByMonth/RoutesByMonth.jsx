@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { routesAPI } from '../../services/api';
+import { routesAPI, reservationsAPI } from '../../services/api';
 import styles from './RoutesByMonth.module.css';
 
 export function RoutesByMonth() {
@@ -12,7 +12,31 @@ export function RoutesByMonth() {
     const loadRoutes = async () => {
       try {
         const response = await routesAPI.getAll();
-        setAllRoutes(response.data);
+        // Aplicar lógica de cancelación automática como en el mapa
+        const routesWithUpdatedStatus = await Promise.all(
+          response.data.map(async (route) => {
+            // Obtener horario de pickup
+            const schedule = await getRouteSchedule(route);
+            
+            // Verificar si la ruta debe marcarse como cancelada por horario expirado
+            let updatedStatus = route.status;
+            if (schedule && route.status !== 'completed' && route.status !== 'cancelled') {
+              const pickupTime = new Date(schedule);
+              const now = new Date();
+              if (pickupTime < now) {
+                updatedStatus = 'cancelled';
+              }
+            }
+            
+            return {
+              ...route,
+              status: updatedStatus,
+              schedule: schedule || route.schedule
+            };
+          })
+        );
+        
+        setAllRoutes(routesWithUpdatedStatus);
       } catch (error) {
         console.error('Error cargando rutas:', error);
       } finally {
@@ -21,6 +45,23 @@ export function RoutesByMonth() {
     };
     loadRoutes();
   }, []);
+
+  const getRouteSchedule = async (route) => {
+    try {
+      // Primero intentar obtener de reservations (para rutas con reservas)
+      const response = await reservationsAPI.getByRoute(route._id);
+      if (response.data && response.data.length > 0) {
+        return response.data[0].pickup_at;
+      }
+      
+      // Si no hay reservations, usar el schedule del route mismo
+      return route.schedule || null;
+    } catch (error) {
+      console.error('Error obteniendo horario:', error);
+      // Fallback: usar el schedule del route
+      return route.schedule || null;
+    }
+  };
 
   // Filtrar rutas por mes seleccionado
   useEffect(() => {

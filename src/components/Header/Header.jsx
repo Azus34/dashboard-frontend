@@ -32,6 +32,12 @@ export function Header() {
           <Link to="/routes-by-month" className={`${styles.navLink} ${isActive('/routes-by-month')}`}>
             📅 <span className={styles.label}>Rutas</span>
           </Link>
+          <Link to="/trip-reports" className={`${styles.navLink} ${isActive('/trip-reports')}`}>
+            📋 <span className={styles.label}>Reportes</span>
+          </Link>
+          <Link to="/ai-assistant" className={`${styles.navLink} ${isActive('/ai-assistant')}`}>
+            🤖 <span className={styles.label}>IA</span>
+          </Link>
           <Link to="/transactions" className={`${styles.navLink} ${isActive('/transactions')}`}>
             💳 <span className={styles.label}>Transacciones</span>
           </Link>

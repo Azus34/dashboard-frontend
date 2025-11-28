@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
-import { routesAPI } from '../../services/api';
+import axios from 'axios';
+import { routesAPI, reservationsAPI } from '../../services/api';
 import styles from './Map.module.css';
 
 export function Map() {
@@ -20,23 +21,130 @@ const stopIcon   = createIcon('◆', 'stop');
 const destIcon   = createIcon('▼', 'dest');
 
   const [routes, setRoutes] = useState([]);
+  const [allRoutes, setAllRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRoute, setSelectedRoute] = useState(null);
+  const [filters, setFilters] = useState({
+    available: true,
+    in_progress: true,
+    completed: true,
+    cancelled: true
+  });
+  const [locationNames, setLocationNames] = useState({});
+  const [routeSchedules, setRouteSchedules] = useState({});
 
   useEffect(() => {
     fetchRoutes();
   }, []);
 
+  useEffect(() => {
+    applyFilters();
+  }, [allRoutes, filters]);
+
   const fetchRoutes = async () => {
     try {
       const res = await routesAPI.getAll();
-      const active = res.data.filter(r => r.status === 'available' || r.status === 'in_progress');
-      setRoutes(active);
+      const routesWithInfo = await Promise.all(
+        res.data.map(async (route) => {
+          // Obtener nombre del lugar para origen
+          const originName = await getLocationName(route.origin.coordinates);
+          
+          // Obtener nombre del lugar para destino
+          const destName = await getLocationName(route.destination.coordinates);
+          
+          // Obtener horario de pickup
+          const schedule = await getRouteSchedule(route);
+          
+          // Verificar si la ruta debe marcarse como cancelada por horario expirado
+          let updatedStatus = route.status;
+          if (schedule && route.status !== 'completed' && route.status !== 'cancelled') {
+            const pickupTime = new Date(schedule);
+            const now = new Date();
+            if (pickupTime < now) {
+              updatedStatus = 'cancelled';
+            }
+          }
+          
+          return {
+            ...route,
+            status: updatedStatus,
+            originName,
+            destName,
+            schedule
+          };
+        })
+      );
+      
+      setAllRoutes(routesWithInfo);
     } catch (err) {
       console.error('Error:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const getLocationName = async (coordinates) => {
+    try {
+      const [lng, lat] = coordinates;
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+        {
+          headers: {
+            'User-Agent': 'ColibriDashboard/1.0'
+          }
+        }
+      );
+      
+      if (response.data && response.data.display_name) {
+        // Extraer solo la parte más relevante de la dirección
+        const address = response.data.address || {};
+        const city = address.city || address.town || address.village || address.municipality;
+        const suburb = address.suburb || address.neighbourhood;
+        const road = address.road || address.highway;
+        
+        if (city && road) {
+          return `${road}, ${city}`;
+        } else if (suburb && city) {
+          return `${suburb}, ${city}`;
+        } else {
+          return response.data.display_name.split(',')[0] || 'Ubicación desconocida';
+        }
+      }
+      
+      return 'Ubicación desconocida';
+    } catch (error) {
+      console.error('Error obteniendo nombre de ubicación:', error);
+      return 'Ubicación desconocida';
+    }
+  };
+
+  const getRouteSchedule = async (route) => {
+    try {
+      // Primero intentar obtener de reservations (para rutas con reservas)
+      const response = await reservationsAPI.getByRoute(route._id);
+      if (response.data && response.data.length > 0) {
+        return response.data[0].pickup_at;
+      }
+      
+      // Si no hay reservations, usar el schedule del route mismo
+      return route.schedule || null;
+    } catch (error) {
+      console.error('Error obteniendo horario:', error);
+      // Fallback: usar el schedule del route
+      return route.schedule || null;
+    }
+  };
+
+  const applyFilters = () => {
+    const filtered = allRoutes.filter(route => filters[route.status]);
+    setRoutes(filtered);
+  };
+
+  const handleFilterChange = (status) => {
+    setFilters(prev => ({
+      ...prev,
+      [status]: !prev[status]
+    }));
   };
 
   const getPath = (route) => {
@@ -53,6 +161,44 @@ const destIcon   = createIcon('▼', 'dest');
 
   return (
     <div className={styles.container}>
+      <div className={styles.filters}>
+        <h3>Filtros de Rutas</h3>
+        <div className={styles.filterOptions}>
+          <label className={styles.filterOption}>
+            <input
+              type="checkbox"
+              checked={filters.available}
+              onChange={() => handleFilterChange('available')}
+            />
+            <span className={`${styles.filterLabel} ${styles.available}`}>Disponibles</span>
+          </label>
+          <label className={styles.filterOption}>
+            <input
+              type="checkbox"
+              checked={filters.in_progress}
+              onChange={() => handleFilterChange('in_progress')}
+            />
+            <span className={`${styles.filterLabel} ${styles.in_progress}`}>En Progreso</span>
+          </label>
+          <label className={styles.filterOption}>
+            <input
+              type="checkbox"
+              checked={filters.completed}
+              onChange={() => handleFilterChange('completed')}
+            />
+            <span className={`${styles.filterLabel} ${styles.completed}`}>Completadas</span>
+          </label>
+          <label className={styles.filterOption}>
+            <input
+              type="checkbox"
+              checked={filters.cancelled}
+              onChange={() => handleFilterChange('cancelled')}
+            />
+            <span className={`${styles.filterLabel} ${styles.cancelled}`}>Canceladas</span>
+          </label>
+        </div>
+      </div>
+
       <div className={styles.mapWrapper}>
         <MapContainer
           center={[20.6595, -100.3161]}
@@ -90,8 +236,14 @@ const destIcon   = createIcon('▼', 'dest');
                   position={[route.origin.coordinates[1], route.origin.coordinates[0]]}
                   onClick={() => setSelectedRoute(route)}
                 >
-                  <Tooltip permanent direction="bottom" offset={[0, 20]}>
-                    Origen: ({route.origin.coordinates[1].toFixed(4)}, {route.origin.coordinates[0].toFixed(4)})
+                  <Tooltip direction="bottom" offset={[0, 20]}>
+                    <div>
+                      <strong>Origen:</strong> {route.originName || 'Cargando...'}<br/>
+                      <small>({route.origin.coordinates[1].toFixed(4)}, {route.origin.coordinates[0].toFixed(4)})</small>
+                      {route.schedule && (
+                        <div><small><strong>Hora:</strong> {new Date(route.schedule).toLocaleString()}</small></div>
+                      )}
+                    </div>
                   </Tooltip>
                 </Marker>
 
@@ -102,7 +254,7 @@ const destIcon   = createIcon('▼', 'dest');
                     position={[s.coordinates[1], s.coordinates[0]]}
                     onClick={() => setSelectedRoute(route)}
                   >
-                    <Tooltip permanent direction="bottom" offset={[0, 20]}>
+                    <Tooltip direction="bottom" offset={[0, 20]}>
                       Parada {i + 1}: ({s.coordinates[1].toFixed(4)}, {s.coordinates[0].toFixed(4)})
                     </Tooltip>
                   </Marker>
@@ -113,8 +265,11 @@ const destIcon   = createIcon('▼', 'dest');
                   position={[route.destination.coordinates[1], route.destination.coordinates[0]]}
                   onClick={() => setSelectedRoute(route)}
                 >
-                  <Tooltip permanent direction="bottom" offset={[0, 20]}>
-                    Destino: ({route.destination.coordinates[1].toFixed(4)}, {route.destination.coordinates[0].toFixed(4)})
+                  <Tooltip direction="bottom" offset={[0, 20]}>
+                    <div>
+                      <strong>Destino:</strong> {route.destName || 'Cargando...'}<br/>
+                      <small>({route.destination.coordinates[1].toFixed(4)}, {route.destination.coordinates[0].toFixed(4)})</small>
+                    </div>
                   </Tooltip>
                 </Marker>
               </React.Fragment>
@@ -149,7 +304,9 @@ const destIcon   = createIcon('▼', 'dest');
             </div>
             <div className={styles.detailItem}>
               <span className={styles.label}>Horario:</span>
-              <span className={styles.value}>{new Date(selectedRoute.schedule).toLocaleString()}</span>
+              <span className={styles.value}>
+                {selectedRoute.schedule ? new Date(selectedRoute.schedule).toLocaleString() : 'No programado'}
+              </span>
             </div>
             <div className={styles.detailItem}>
               <span className={styles.label}>Precios:</span>
@@ -162,7 +319,8 @@ const destIcon   = createIcon('▼', 'dest');
                 <div className={styles.pathItem}>
                   <span className={styles.pathMarker} style={{ backgroundColor: '#28a745' }}>●</span>
                   <span>
-                    Origen: ({selectedRoute.origin.coordinates[1].toFixed(4)}, {selectedRoute.origin.coordinates[0].toFixed(4)})
+                    <strong>Origen:</strong> {selectedRoute.originName || 'Cargando...'}<br/>
+                    <small>({selectedRoute.origin.coordinates[1].toFixed(4)}, {selectedRoute.origin.coordinates[0].toFixed(4)})</small>
                   </span>
                 </div>
 
@@ -178,7 +336,8 @@ const destIcon   = createIcon('▼', 'dest');
                 <div className={styles.pathItem}>
                   <span className={styles.pathMarker} style={{ backgroundColor: '#dc3545' }}>●</span>
                   <span>
-                    Destino: ({selectedRoute.destination.coordinates[1].toFixed(4)}, {selectedRoute.destination.coordinates[0].toFixed(4)})
+                    <strong>Destino:</strong> {selectedRoute.destName || 'Cargando...'}<br/>
+                    <small>({selectedRoute.destination.coordinates[1].toFixed(4)}, {selectedRoute.destination.coordinates[0].toFixed(4)})</small>
                   </span>
                 </div>
               </div>
