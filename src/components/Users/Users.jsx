@@ -55,35 +55,31 @@ export function Users() {
           <table className={styles.table}>
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Nombre</th>
                 <th>Email</th>
-                <th>Teléfono</th>
-                <th>Licencia</th>
-                <th>Vehículo</th>
+                <th>Fecha de Nacimiento</th>
+                <th>Rol</th>
                 <th>Estado</th>
-                <th>Calificación</th>
+                <th>Fecha de Registro</th>
               </tr>
             </thead>
             <tbody>
-              {drivers.map((driver) => {
-                const rating = parseFloat(driver.rating_avg) || 0;
-                const ratingDisplay = rating > 0 ? rating.toFixed(1) : 'N/A';
-                return (
-                  <tr key={driver.id}>
-                    <td>{driver.full_name}</td>
-                    <td>{driver.email}</td>
-                    <td>{driver.phone_number}</td>
-                    <td>{driver.license_number}</td>
-                    <td>{driver.vehicle_brand} {driver.vehicle_model} ({driver.vehicle_year})</td>
-                    <td>
-                      <span className={`${styles.badge} ${styles[driver.status]}`}>
-                        {driver.status}
-                      </span>
-                    </td>
-                    <td>{ratingDisplay} ⭐</td>
-                  </tr>
-                );
-              })}
+              {drivers.map((driver) => (
+                <tr key={driver.id}>
+                  <td>{driver.id}</td>
+                  <td>{driver.full_name}</td>
+                  <td>{driver.email}</td>
+                  <td>{driver.date_birth ? new Date(driver.date_birth).toLocaleDateString('es-MX') : 'N/A'}</td>
+                  <td>{driver.role_label || driver.role}</td>
+                  <td>
+                    <span className={`${styles.badge} ${driver.is_active ? styles.active : styles.inactive}`}>
+                      {driver.is_active ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                  <td>{new Date(driver.created_at).toLocaleDateString('es-MX')}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
@@ -92,27 +88,29 @@ export function Users() {
           <table className={styles.table}>
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Nombre</th>
                 <th>Email</th>
-                <th>Teléfono</th>
-                <th>País</th>
+                <th>Fecha de Nacimiento</th>
+                <th>Rol</th>
                 <th>Estado</th>
-                <th>Saldo</th>
+                <th>Fecha de Registro</th>
               </tr>
             </thead>
             <tbody>
               {customers.map((customer) => (
                 <tr key={customer.id}>
+                  <td>{customer.id}</td>
                   <td>{customer.full_name}</td>
                   <td>{customer.email}</td>
-                  <td>{customer.phone_number}</td>
-                  <td>{customer.default_country}</td>
+                  <td>{customer.date_birth ? new Date(customer.date_birth).toLocaleDateString('es-MX') : 'N/A'}</td>
+                  <td>{customer.role_label || customer.role}</td>
                   <td>
-                    <span className={`${styles.badge} ${styles[customer.status]}`}>
-                      {customer.status}
+                    <span className={`${styles.badge} ${customer.is_active ? styles.active : styles.inactive}`}>
+                      {customer.is_active ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
-                  <td>${(customer.balance_cents / 100).toFixed(2)}</td>
+                  <td>{new Date(customer.created_at).toLocaleDateString('es-MX')}</td>
                 </tr>
               ))}
             </tbody>
