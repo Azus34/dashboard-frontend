@@ -35,9 +35,6 @@ export function Header() {
           <Link to="/trip-reports" className={`${styles.navLink} ${isActive('/trip-reports')}`}>
             📋 <span className={styles.label}>Reportes</span>
           </Link>
-          <Link to="/ai-assistant" className={`${styles.navLink} ${isActive('/ai-assistant')}`}>
-            🤖 <span className={styles.label}>IA</span>
-          </Link>
           <Link to="/transactions" className={`${styles.navLink} ${isActive('/transactions')}`}>
             💳 <span className={styles.label}>Transacciones</span>
           </Link>
