@@ -47,6 +47,9 @@ export function Header() {
           <Link to="/users" className={`${styles.navLink} ${isActive('/users')}`}>
             👥 <span className={styles.label}>Usuarios</span>
           </Link>
+          <Link to="/kpi" className={`${styles.navLink} ${isActive('/kpi')}`}>
+            📈 <span className={styles.label}>KPI</span>
+          </Link>
         </nav>
       </div>
     </header>

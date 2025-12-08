@@ -10,6 +10,7 @@ import RoutesByMonthPage from './pages/RoutesByMonthPage';
 import TripReportsPage from './pages/TripReportsPage';
 import AIAssistantPage from './pages/AIAssistantPage';
 import NotFoundPage from './pages/NotFoundPage';
+import KpiPage from './pages/KpiPage';
 import './App.css';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/users" element={<UsersPage />} />
         <Route path="*" element={<NotFoundPage />} />
+        <Route path="/kpi" element={<KpiPage />} />
       </Routes>
     </Router>
   );

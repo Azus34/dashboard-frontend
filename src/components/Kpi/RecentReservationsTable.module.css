@@ -1,0 +1,74 @@
+.container { 
+  margin-top: 1rem; 
+  background: var(--color-bg-secondary); 
+  padding: 1rem; 
+  border-radius: 8px; 
+}
+
+.container h3 {
+  margin: 0 0 1rem 0;
+  color: var(--color-text);
+}
+
+.table { 
+  width: 100%; 
+  border-collapse: collapse; 
+}
+
+.table th { 
+  text-align: left; 
+  padding: 8px; 
+  font-weight: 700; 
+  border-bottom: 1px solid var(--color-border); 
+  color: var(--color-text);
+}
+
+.table td { 
+  padding: 8px; 
+  border-bottom: 1px solid var(--color-border); 
+  color: var(--color-text-light); 
+}
+
+.table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Estilos para los estados */
+.table td span[class^="status"] {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.statusCOMPLETED {
+  background: rgba(34, 197, 94, 0.1);
+  color: rgb(34, 197, 94);
+}
+
+.statusACCEPTED {
+  background: rgba(59, 130, 246, 0.1);
+  color: rgb(59, 130, 246);
+}
+
+.statusPENDING {
+  background: rgba(234, 179, 8, 0.1);
+  color: rgb(234, 179, 8);
+}
+
+.statusREJECTED {
+  background: rgba(239, 68, 68, 0.1);
+  color: rgb(239, 68, 68);
+}
+
+@media (max-width: 768px) {
+  .table {
+    font-size: 14px;
+  }
+  
+  .table th,
+  .table td {
+    padding: 6px;
+  }
+}

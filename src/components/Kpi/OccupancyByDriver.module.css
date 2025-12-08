@@ -1,0 +1,71 @@
+.container {
+  height: 100%;
+}
+
+.container h3 {
+  margin: 0 0 1rem 0;
+  color: var(--color-text);
+  font-size: 16px;
+}
+
+.loading, .empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-light);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.info {
+  flex: 0 0 180px;
+  min-width: 0;
+}
+
+.name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detail {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.barContainer {
+  flex: 1;
+  height: 24px;
+  background: var(--color-bg-primary);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #eab308);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.percentage {
+  flex: 0 0 45px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text);
+}
